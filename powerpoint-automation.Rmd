@@ -1,0 +1,90 @@
+---
+title: "Automate PPT"
+author: "Alan Millington"
+date: "08/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(officer)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r echo=FALSE}
+pres <- read_pptx()
+
+# add title slide
+pres <- add_slide(pres, layout = "Title Only", master = "Office Theme")
+ 
+# add Title text
+pres <- ph_with(pres, value = "My first presentation", location = ph_location_type(type = "title"))
+
+pres <- add_slide(pres, layout = "Title and Content", master = "Office Theme")
+pres <- ph_with(pres, value = "This is the second slide", location = ph_location_type(type = "title"))
+pres <- ph_with(pres, value = c("First line", "Second Line", "Third line"), location = ph_location_type(type = "body"))
+
+```
+
+```{r}
+# create sample data frame
+frame <- data.frame(a = 1:10, b = 11:20, c = 21:30)
+ 
+# create slide to hold table
+pres <- add_slide(pres, layout = "Title and Content", master = "Office Theme")
+pres <- ph_with(pres, value = "Table Example", location = ph_location_type(type = "title"))
+ 
+# add data frame to PowerPoint slide
+pres <- ph_with(pres, value = frame, location = ph_location_type(type = "body"))
+
+```
+
+```{r}
+library(ggplot2)
+pres <- add_slide(pres, layout = "Blank", master = "Office Theme")
+sample_plot <- ggplot(data = frame) + geom_point(mapping = aes(1:10, a),
+                                      size = 3) + theme_minimal()
+ 
+pres <- ph_with(pres, value = sample_plot, location = ph_location_fullsize())
+pres <- add_slide(pres)
+pres <- ph_with(pres, external_img("sample_image.png", width = 2, height = 3),
+               location = ph_location_type(type = "body"), use_loc_size = FALSE )
+```
+
+```{r}
+library(magrittr)
+ 
+# create bold text object with size 24 font
+bold <- fp_text(font.size = 24, bold = TRUE)
+ 
+# create green Arial text object with size 24 font
+green <- fp_text(font.size = 24, color = "green", font.family = "Arial")
+ 
+# create block list of two paragraphs with the above font specifics
+pars <- block_list(fpar(ftext("This line is bold", bold)), fpar(ftext("This line is green and Arial", green)))
+ 
+# add slide with paragraphs
+pres <- add_slide(pres, layout = "Title and Content", master = "Office Theme") %>% ph_with(pars, location = ph_location_type(type = "body")) 
+
+```
+```{r}
+pres <- add_slide(pres)
+ 
+pres <- ph_with(pres, "Click Here", location = ph_location_type(type = "body"))
+pres <- ph_hyperlink(pres, href = "https://theautomatic.net")
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
